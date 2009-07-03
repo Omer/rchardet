@@ -60,7 +60,7 @@ module CharDet
 
     def feed(aBuf)
       # HACK: force internal encoding to be ascii-8bit (ruby 1.8 bytes)
-      aBuf = aBuf.force_encoding('ASCII-8BIT')
+      aBuf = aBuf.force_encoding('ASCII-8BIT') if aBuf.respond_to?(:force_encoding)
       return if @done
 
       aLen = aBuf.length
