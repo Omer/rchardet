@@ -57,65 +57,66 @@ module CharDet
 
     def get_charset_name
       if @_mNameProber
-	return @_mNameProber.get_charset_name()
+	      return @_mNameProber.get_charset_name()
       else
-	return @_mModel['charsetName']
+	      return @_mModel['charsetName']
       end
     end
 
     def feed(aBuf)
       if not @_mModel['keepEnglishLetter']
-	aBuf = filter_without_english_letters(aBuf)
+	      aBuf = filter_without_english_letters(aBuf)
       end
       aLen = aBuf.length
       if not aLen
-	return get_state()
+	      return get_state()
       end
       for c in aBuf.split('')
-	order = @_mModel['charToOrderMap'][c[0]]
-	if order < SYMBOL_CAT_ORDER
-	  @_mTotalChar += 1
-	end
-	if order < SAMPLE_SIZE
-	  @_mFreqChar += 1
-	  if @_mLastOrder < SAMPLE_SIZE
-	    @_mTotalSeqs += 1
-	    if not @_mReversed
-	      @_mSeqCounters[@_mModel['precedenceMatrix'][(@_mLastOrder * SAMPLE_SIZE) + order]] += 1
-	    else # reverse the order of the letters in the lookup
-	      @_mSeqCounters[@_mModel['precedenceMatrix'][(order * SAMPLE_SIZE) + @_mLastOrder]] += 1
-	    end
-	  end
-	end
-	@_mLastOrder = order
+        char = c.respond_to?(:bytes) ? c.bytes.first : c[0]
+      	order = @_mModel['charToOrderMap'][char]
+      	if order < SYMBOL_CAT_ORDER
+      	  @_mTotalChar += 1
+      	end
+      	if order < SAMPLE_SIZE
+      	  @_mFreqChar += 1
+      	  if @_mLastOrder < SAMPLE_SIZE
+      	    @_mTotalSeqs += 1
+      	    if not @_mReversed
+      	      @_mSeqCounters[@_mModel['precedenceMatrix'][(@_mLastOrder * SAMPLE_SIZE) + order]] += 1
+      	    else # reverse the order of the letters in the lookup
+      	      @_mSeqCounters[@_mModel['precedenceMatrix'][(order * SAMPLE_SIZE) + @_mLastOrder]] += 1
+      	    end
+      	  end
+      	end
+      	@_mLastOrder = order
       end
 
-      if get_state() == EDetecting
-	if @_mTotalSeqs > SB_ENOUGH_REL_THRESHOLD
-	  cf = get_confidence()
-	  if cf > POSITIVE_SHORTCUT_THRESHOLD
-	    $stderr << "#{@_mModel['charsetName']} confidence = #{cf}, we have a winner\n" if $debug
-	    @_mState = EFoundIt
-	  elsif cf < NEGATIVE_SHORTCUT_THRESHOLD
-	    $stderr << "#{@_mModel['charsetName']} confidence = #{cf}, below negative shortcut threshold #{NEGATIVE_SHORTCUT_THRESHOLD}\n" if $debug
-	    @_mState = ENotMe
-	  end
-	end
+      if get_state == EDetecting
+      	if @_mTotalSeqs > SB_ENOUGH_REL_THRESHOLD
+      	  cf = get_confidence
+      	  if cf > POSITIVE_SHORTCUT_THRESHOLD
+      	    $stderr << "#{@_mModel['charsetName']} confidence = #{cf}, we have a winner\n" if $debug
+      	    @_mState = EFoundIt
+      	  elsif cf < NEGATIVE_SHORTCUT_THRESHOLD
+      	    $stderr << "#{@_mModel['charsetName']} confidence = #{cf}, below negative shortcut threshold #{NEGATIVE_SHORTCUT_THRESHOLD}\n" if $debug
+      	    @_mState = ENotMe
+      	  end
+      	end
       end
 
-      return get_state()
+      return get_state
     end
 
     def get_confidence
       r = 0.01
       if @_mTotalSeqs > 0
-	#            print self._mSeqCounters[POSITIVE_CAT], self._mTotalSeqs, self._mModel['mTypicalPositiveRatio']
-	r = (1.0 * @_mSeqCounters[POSITIVE_CAT]) / @_mTotalSeqs / @_mModel['mTypicalPositiveRatio']
-	#            print r, self._mFreqChar, self._mTotalChar
-	r = r * @_mFreqChar / @_mTotalChar
-	if r >= 1.0
-	  r = 0.99
-	end
+      	#            print self._mSeqCounters[POSITIVE_CAT], self._mTotalSeqs, self._mModel['mTypicalPositiveRatio']
+      	r = (1.0 * @_mSeqCounters[POSITIVE_CAT]) / @_mTotalSeqs / @_mModel['mTypicalPositiveRatio']
+      	#            print r, self._mFreqChar, self._mTotalChar
+      	r = r * @_mFreqChar / @_mTotalChar
+      	if r >= 1.0
+      	  r = 0.99
+      	end
       end
       return r
     end
