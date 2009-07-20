@@ -1,3 +1,8 @@
+rCharDet
+=========
+rCharDet is a character encoding detection library for ruby and the implementation is based
+on Mozilla Charset Detectors. This is a forked project in a effort to make it Ruby 1.9 compatible
+
 Usage:
     require 'rubygems'
     require 'rchardet'
