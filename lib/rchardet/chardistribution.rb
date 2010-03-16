@@ -175,9 +175,9 @@ module CharDet
       # no validation needed here. State machine has done that
       if aStr[0..0] >= "\xA4"
 	if aStr[1..1] >= "\xA1"
-	  return 157 * (aStr[0] - 0xA4) + aStr[1] - 0xA1 + 63
+	  return 157 * (aStr[0].ord - 0xA4) + aStr[1].ord - 0xA1 + 63
 	else
-	  return 157 * (aStr[0] - 0xA4) + aStr[1] - 0x40
+	  return 157 * (aStr[0].ord - 0xA4) + aStr[1].ord - 0x40
 	end
       else
 	return -1
